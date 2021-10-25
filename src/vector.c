@@ -1,3 +1,4 @@
+#include <math.h>
 #include <mruby.h>
 #include <mruby/boxing_word.h>
 #include <mruby/class.h>
@@ -79,8 +80,20 @@ mrb_value mrb_vec2_initialize(mrb_state *mrb, mrb_value self) {
   vec2 *v2 = vec2_unwrap(self);
   v2->x = x;
   v2->y = y;
-  
+
   return self;
+}
+
+mrb_value mrb_vec2_make_polar(mrb_state *mrb, mrb_value _) {
+  mrb_float r = 0;
+  mrb_float theta = 0;
+
+  mrb_get_args(mrb, "|ff", &r, &theta);
+
+  vec2 *v2 = vec2_init(mrb, r * cos(theta), r * sin(theta));
+  mrb_value rv2 = mrb_vec2_wrap(mrb, clss.vec2, v2);
+
+  return rv2;
 }
 
 vec3 *vec3_init(mrb_state *mrb, mrb_float x, mrb_float y, mrb_float z) {
@@ -104,7 +117,6 @@ mrb_value mrb_vec3_make_new(mrb_state *mrb, mrb_value _) {
   return rv3;
 }
 
-
 mrb_value mrb_vec3_initialize(mrb_state *mrb, mrb_value self) {
   mrb_float x = 0;
   mrb_float y = 0;
@@ -116,18 +128,35 @@ mrb_value mrb_vec3_initialize(mrb_state *mrb, mrb_value self) {
   v3->x = x;
   v3->y = y;
   v3->z = z;
-  
+
   return self;
+}
+
+mrb_value mrb_vec3_make_polar(mrb_state *mrb, mrb_value _) {
+  mrb_float rho = 0;
+  mrb_float phi = 0;
+  mrb_float theta = 0;
+
+  mrb_get_args(mrb, "|fff", &rho, &phi, &theta);
+
+  vec3 *v3 = vec3_init(mrb, rho * sin(phi) * cos(theta),
+                       rho * sin(phi) * sin(theta), rho * cos(phi));
+  mrb_value rv3 = mrb_vec3_wrap(mrb, clss.vec3, v3);
+
+  return rv3;
 }
 
 mrb_value mrb_vec2_initialize_copy(mrb_state *mrb, mrb_value copy) {
   mrb_value src = mrb_get_arg1(mrb);
 
-  if(mrb_obj_equal(mrb, copy, src)) return copy;
-  if(!mrb_obj_is_instance_of(mrb, src, mrb_obj_class(mrb, copy))) mrb_raisef(mrb, E_TYPE_ERROR, "Wrong argument class `%C` expected `%C`", mrb_obj_class(mrb, src), mrb_obj_class(mrb, copy));
+  if (mrb_obj_equal(mrb, copy, src))
+    return copy;
+  if (!mrb_obj_is_instance_of(mrb, src, mrb_obj_class(mrb, copy)))
+    mrb_raisef(mrb, E_TYPE_ERROR, "Wrong argument class `%C` expected `%C`",
+               mrb_obj_class(mrb, src), mrb_obj_class(mrb, copy));
 
   vec2 *vcp = vec2_unwrap(copy);
-  if(!vcp) {
+  if (!vcp) {
     vcp = vec2_alloc(mrb);
     mrb_data_init(copy, vcp, &mrb_vec2_type);
   }
@@ -137,14 +166,17 @@ mrb_value mrb_vec2_initialize_copy(mrb_state *mrb, mrb_value copy) {
 }
 
 mrb_value mrb_vec3_initialize_copy(mrb_state *mrb, mrb_value copy) {
- 
+
   mrb_value src = mrb_get_arg1(mrb);
 
-  if(mrb_obj_equal(mrb, copy, src)) return copy;
-  if(!mrb_obj_is_instance_of(mrb, src, mrb_obj_class(mrb, copy))) mrb_raisef(mrb, E_TYPE_ERROR, "Wrong argument class `%C` expected `%C`", mrb_obj_class(mrb, src), mrb_obj_class(mrb, copy));
+  if (mrb_obj_equal(mrb, copy, src))
+    return copy;
+  if (!mrb_obj_is_instance_of(mrb, src, mrb_obj_class(mrb, copy)))
+    mrb_raisef(mrb, E_TYPE_ERROR, "Wrong argument class `%C` expected `%C`",
+               mrb_obj_class(mrb, src), mrb_obj_class(mrb, copy));
 
   vec3 *vcp = vec3_unwrap(copy);
-  if(!vcp) {
+  if (!vcp) {
     vcp = vec3_alloc(mrb);
     mrb_data_init(copy, vcp, &mrb_vec2_type);
   }
@@ -158,7 +190,8 @@ mrb_value mrb_vec2_x(mrb_state *mrb, mrb_value self) {
 }
 
 mrb_value mrb_vec2_set_x(mrb_state *mrb, mrb_value self) {
-  return mrb_float_value(mrb, vec2_unwrap(self)->x = mrb_as_float(mrb, mrb_get_arg1(mrb)));
+  return mrb_float_value(mrb, vec2_unwrap(self)->x =
+                                  mrb_as_float(mrb, mrb_get_arg1(mrb)));
 }
 
 mrb_value mrb_vec2_y(mrb_state *mrb, mrb_value self) {
@@ -166,7 +199,8 @@ mrb_value mrb_vec2_y(mrb_state *mrb, mrb_value self) {
 }
 
 mrb_value mrb_vec2_set_y(mrb_state *mrb, mrb_value self) {
-  return mrb_float_value(mrb, vec2_unwrap(self)->y = mrb_as_float(mrb, mrb_get_arg1(mrb)));
+  return mrb_float_value(mrb, vec2_unwrap(self)->y =
+                                  mrb_as_float(mrb, mrb_get_arg1(mrb)));
 }
 
 mrb_value mrb_vec3_x(mrb_state *mrb, mrb_value self) {
@@ -174,7 +208,8 @@ mrb_value mrb_vec3_x(mrb_state *mrb, mrb_value self) {
 }
 
 mrb_value mrb_vec3_set_x(mrb_state *mrb, mrb_value self) {
-  return mrb_float_value(mrb, vec3_unwrap(self)->x = mrb_as_float(mrb, mrb_get_arg1(mrb)));
+  return mrb_float_value(mrb, vec3_unwrap(self)->x =
+                                  mrb_as_float(mrb, mrb_get_arg1(mrb)));
 }
 
 mrb_value mrb_vec3_y(mrb_state *mrb, mrb_value self) {
@@ -182,7 +217,8 @@ mrb_value mrb_vec3_y(mrb_state *mrb, mrb_value self) {
 }
 
 mrb_value mrb_vec3_set_y(mrb_state *mrb, mrb_value self) {
-  return mrb_float_value(mrb, vec3_unwrap(self)->y = mrb_as_float(mrb, mrb_get_arg1(mrb)));
+  return mrb_float_value(mrb, vec3_unwrap(self)->y =
+                                  mrb_as_float(mrb, mrb_get_arg1(mrb)));
 }
 
 mrb_value mrb_vec3_z(mrb_state *mrb, mrb_value self) {
@@ -190,7 +226,8 @@ mrb_value mrb_vec3_z(mrb_state *mrb, mrb_value self) {
 }
 
 mrb_value mrb_vec3_set_z(mrb_state *mrb, mrb_value self) {
-  return mrb_float_value(mrb, vec3_unwrap(self)->z = mrb_as_float(mrb, mrb_get_arg1(mrb)));
+  return mrb_float_value(mrb, vec3_unwrap(self)->z =
+                                  mrb_as_float(mrb, mrb_get_arg1(mrb)));
 }
 
 mrb_value mrb_vec2_add(mrb_state *mrb, mrb_value self) {
@@ -353,9 +390,7 @@ mrb_value mrb_vec2_div_b(mrb_state *mrb, mrb_value self) {
   return self;
 }
 
-mrb_value mrb_vec2_to_v2(mrb_state *mrb, mrb_value self) {
-  return self;
-}
+mrb_value mrb_vec2_to_v2(mrb_state *mrb, mrb_value self) { return self; }
 
 mrb_value mrb_vec2_to_v3(mrb_state *mrb, mrb_value self) {
   vec2 *vec = vec2_unwrap(self);
@@ -544,14 +579,12 @@ mrb_value mrb_vec3_to_v2(mrb_state *mrb, mrb_value self) {
 
   vec2 *v2 = vec2_init(mrb, 0, 0);
   mrb_value rv2 = mrb_vec2_wrap(mrb, clss.vec2, v2);
-  *v2 = *((vec2 *) vec);
+  *v2 = *((vec2 *)vec);
 
   return rv2;
 }
 
-mrb_value mrb_vec3_to_v3(mrb_state *mrb, mrb_value self) {
-  return self;
-}
+mrb_value mrb_vec3_to_v3(mrb_state *mrb, mrb_value self) { return self; }
 
 void mrb_mruby_vector_gem_init(mrb_state *mrb) {
   clss.numeric = mrb_class_get(mrb, "Numeric");
@@ -563,6 +596,8 @@ void mrb_mruby_vector_gem_init(mrb_state *mrb) {
   mrb_define_class_method(mrb, vec2_c, "[]", mrb_vec2_make_new,
                           MRB_ARGS_OPT(2));
   mrb_define_class_method(mrb, vec2_c, "new", mrb_vec2_make_new,
+                          MRB_ARGS_OPT(2));
+  mrb_define_class_method(mrb, vec2_c, "polar", mrb_vec2_make_polar,
                           MRB_ARGS_OPT(2));
   mrb_define_method(mrb, vec2_c, "initialize_copy", mrb_vec2_initialize_copy,
                     MRB_ARGS_REQ(1));
@@ -583,11 +618,13 @@ void mrb_mruby_vector_gem_init(mrb_state *mrb) {
 
   struct RClass *vec3_c = mrb_define_class(mrb, "Vec3", mrb->object_class);
   clss.vec3 = vec3_c;
-  
+
   mrb_undef_class_method(mrb, vec3_c, "allocate");
   mrb_define_class_method(mrb, vec3_c, "[]", mrb_vec3_make_new,
                           MRB_ARGS_OPT(3));
   mrb_define_class_method(mrb, vec3_c, "new", mrb_vec3_make_new,
+                          MRB_ARGS_OPT(3));
+  mrb_define_class_method(mrb, vec3_c, "polar", mrb_vec3_make_polar,
                           MRB_ARGS_OPT(3));
   mrb_define_method(mrb, vec3_c, "initialize_copy", mrb_vec3_initialize_copy,
                     MRB_ARGS_REQ(1));
