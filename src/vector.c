@@ -203,6 +203,16 @@ mrb_value mrb_vec2_set_y(mrb_state *mrb, mrb_value self) {
                                   mrb_as_float(mrb, mrb_get_arg1(mrb)));
 }
 
+mrb_value mrb_vec2_sq_mag(mrb_state *mrb, mrb_value self) {
+  vec2 *v2 = vec2_unwrap(self);
+  return mrb_float_value(mrb,v2->x * v2->x + v2->y * v2->y);
+}
+
+mrb_value mrb_vec2_mag(mrb_state *mrb, mrb_value self) {
+  vec2 *v2 = vec2_unwrap(self);
+  return mrb_float_value(mrb, sqrt(v2->x * v2->x + v2->y * v2->y));
+}
+
 mrb_value mrb_vec3_x(mrb_state *mrb, mrb_value self) {
   return mrb_float_value(mrb, vec3_unwrap(self)->x);
 }
@@ -228,6 +238,16 @@ mrb_value mrb_vec3_z(mrb_state *mrb, mrb_value self) {
 mrb_value mrb_vec3_set_z(mrb_state *mrb, mrb_value self) {
   return mrb_float_value(mrb, vec3_unwrap(self)->z =
                                   mrb_as_float(mrb, mrb_get_arg1(mrb)));
+}
+
+mrb_value mrb_vec3_sq_mag(mrb_state *mrb, mrb_value self) {
+  vec3 *v3 = vec3_unwrap(self);
+  return mrb_float_value(mrb,v3->x * v3->x + v3->y * v3->y + v3->z * v3->z);
+}
+
+mrb_value mrb_vec3_mag(mrb_state *mrb, mrb_value self) {
+  vec3 *v3 = vec3_unwrap(self);
+  return mrb_float_value(mrb, sqrt(v3->x * v3->x + v3->y * v3->y + v3->z * v3->z));
 }
 
 mrb_value mrb_vec2_add(mrb_state *mrb, mrb_value self) {
@@ -615,6 +635,8 @@ void mrb_mruby_vector_gem_init(mrb_state *mrb) {
   mrb_define_method(mrb, vec2_c, "div!", mrb_vec2_div_b, MRB_ARGS_REQ(1));
   mrb_define_method(mrb, vec2_c, "to_v2", mrb_vec2_to_v2, MRB_ARGS_NONE());
   mrb_define_method(mrb, vec2_c, "to_v3", mrb_vec2_to_v3, MRB_ARGS_NONE());
+  mrb_define_method(mrb, vec2_c, "sq_mag", mrb_vec2_sq_mag, MRB_ARGS_NONE());
+  mrb_define_method(mrb, vec2_c, "mag", mrb_vec2_mag, MRB_ARGS_NONE());
 
   struct RClass *vec3_c = mrb_define_class(mrb, "Vec3", mrb->object_class);
   clss.vec3 = vec3_c;
@@ -644,6 +666,8 @@ void mrb_mruby_vector_gem_init(mrb_state *mrb) {
   mrb_define_method(mrb, vec3_c, "div!", mrb_vec3_div_b, MRB_ARGS_REQ(1));
   mrb_define_method(mrb, vec3_c, "to_v2", mrb_vec3_to_v2, MRB_ARGS_NONE());
   mrb_define_method(mrb, vec3_c, "to_v3", mrb_vec3_to_v3, MRB_ARGS_NONE());
+  mrb_define_method(mrb, vec3_c, "sq_mag", mrb_vec3_sq_mag, MRB_ARGS_NONE());
+  mrb_define_method(mrb, vec3_c, "mag", mrb_vec3_mag, MRB_ARGS_NONE());
 
   // global func decls
   mrb_define_method(mrb, mrb->kernel_module, "vec2", mrb_vec2_make_new,
